@@ -1,0 +1,36 @@
+doctype html
+html(lang="zh-CN")
+  head
+    title='login'
+  body
+    form(
+      action='/login'
+      method='post'
+      autocomplete="new-password"
+    )
+      div
+        label(
+          for='usrname'
+          ) 用户名：
+        input(
+          type='text',
+          name='username'
+          id='usrname'
+          required
+        )
+      div
+        label(
+          for='passwd'
+        ) 密&emsp;码：
+        input(
+          type='password',
+          name='password',
+          id='passwd'
+          required
+        )
+      div
+        input(
+          type='submit'
+          value='登录'
+        )
+    div= message
