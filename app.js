@@ -1,10 +1,13 @@
 const express = require("express")
+const bcrypt = require('bcryptjs')
+const cors = require('cors')
 const { expressjwt } = require("express-jwt")
 const jwt = require('jsonwebtoken')
 // const connetServer = require("./db")
 const loginRouter = require('./router/login')
 const userRouter = require('./router/user')
 const postsRouter = require('./router/posts')
+require('dotenv').config()
 
 const app = express()
 
@@ -13,6 +16,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.set("view engine", 'pug')
 app.set("views", './public')
+
+app.use(cors())
 
 // connetServer()
 
@@ -23,21 +28,29 @@ const logger = function logger(req, res, next) {
 
 app.use(logger)
 
-app.use(expressjwt({ secret: 'fsdjkfsjfsdsfdc', algorithms: ['HS256'] }))
+const SECRET = process.env.SECRET
+const NAME = process.env.NAME
+const PASS = process.env.PASS
+const PASS_HASH = process.env.PASS_HASH
 
-let users = { name: 'admin', password: '123456', _id: 'sdxcjdsdsdwdwdsad' }
+app.use(expressjwt({ secret: SECRET, algorithms: ['HS256'] }), (req, res, next) => {
+  console.log(req.auth)
+  next()
+})
+
+let users = { name: NAME, password: PASS, _id: 'sdxcjdsdsdwdwdsad' }
 
 
 app.post('/login', function (req, res, next) {
-  if (req.body.username !== users.name || req.body.password !== users.password) {
+  if (req.body.username !== users.name || !bcrypt.compareSync(users.password, req.body.password)) {
     return res.send({
       code: 500,
       msg: '用户名或密码错误'
     })
   }
-  const token = jwt.sign({ id: users._id }, 'fsdjkfsjfsdsfdc', { expiresIn: '30s' })
+  const token = jwt.sign({ user_id: users._id }, SECRET, { expiresIn: '1h' })
   res.send({
-    code: 0,
+    code: 200,
     msg: '登录成功',
     token
   })
